@@ -13,7 +13,8 @@ contract RPS{
     event Game(bool status);
     event wins(address winner);
     event J2Move(Move m);
-
+    event Tie(bool status);
+    event Timeout(bool status,address caller);
     constructor(bytes32 _c1Hash, address _j2)payable{
         stake = msg.value; // La mise correspond à la quantité d'ethers envoyés.
         j1=msg.sender;
@@ -55,9 +56,11 @@ contract RPS{
             require(success,"transaction failed");
             (bool success2,)=payable(j2).call{value: stake}("");
             require(success2,"transaction failed");
+            emit Tie(true);
         }
         stake=0;
         c2=Move.Null;
+        selfdestruct(payable(j1));
     }
     
     function j1Timeout() public {
@@ -65,6 +68,7 @@ contract RPS{
         require(block.timestamp > lastAction + TIMEOUT); // Timeout time has passed.
         payable(j2).call{value:2*stake};
         stake=0;
+        emit Timeout(true, j2);
     }
 
     function j2Timeout() public {
@@ -72,6 +76,7 @@ contract RPS{
         require(block.timestamp > lastAction + TIMEOUT); // Timeout time has passed.
         payable(j1).call{value: stake};
         stake=0;
+        emit Timeout(true, j1);
     }
 
     function win(Move _c1, Move _c2) internal pure returns (bool w) {
@@ -83,6 +88,10 @@ contract RPS{
             return (_c1<_c2);
         else
             return (_c1>_c2);
+    }
+
+    function getJ2()public view returns(address){
+        return j2;
     }
     
 }

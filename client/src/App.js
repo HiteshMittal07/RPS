@@ -6,18 +6,17 @@ import "./App.css";
 import abi from "./ABI/RPS.json";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { FaCopy } from "react-icons/fa";
 function App() {
-  const [contractAddress, setContractAddress] = useState("");
+  const [contractAddress, setContractAddress] = useState(null);
   const [account, setAccount] = useState("not connected");
   const [timer, SetTimer] = useState(false);
   const [j2Play, setJ2Play] = useState(false);
   const [connected, setConnected] = useState(false);
   const [playerTurn, setPlayerTurn] = useState("J1");
-  const [J1, setJ1] = useState("");
-  const [J2, setJ2] = useState("");
+  const [J1, setJ1] = useState(null);
+  const [J2, setJ2] = useState(null);
   const connectWallet = async () => {
-    const contractAddress = "0x456F80d466ed0E58803444F50ba5f845AcF274d6";
-    const contractABI = abi.abi;
     try {
       const { ethereum } = window;
       const accounts = await ethereum.request({
@@ -32,7 +31,10 @@ function App() {
   };
 
   const CreateGame = async () => {
-    // const contractAddress = "0x456F80d466ed0E58803444F50ba5f845AcF274d6";
+    if (J1 !== null) {
+      toast.error("You are already in game");
+      return;
+    }
     const commit = document.querySelector("#commitment").value;
     const address1 = document.querySelector("#Opaddress").value;
     const amount = document.querySelector("#amount").value;
@@ -47,14 +49,19 @@ function App() {
     );
     console.log(ContractInstance);
     let option = { value: ethers.parseEther(amount) };
-    const contractInstance = await ContractInstance.deploy(
-      commit,
-      address1,
-      option
-    );
-    await contractInstance.waitForDeployment();
-    console.log("Deployed contract address - ", contractInstance.target);
-    SetTimer(true);
+    let contractInstance;
+    try {
+      contractInstance = await ContractInstance.deploy(
+        commit,
+        address1,
+        option
+      );
+      await contractInstance.waitForDeployment();
+      console.log("Deployed contract address - ", contractInstance.target);
+    } catch (error) {
+      toast.error(error.reason);
+    }
+    // SetTimer(true);
     toast.success("J1 Has Played his Move");
     setContractAddress(contractInstance.target);
     let contract = new ethers.Contract(
@@ -67,14 +74,16 @@ function App() {
       contractABI,
       provider
     );
+    setJ1(signer.address);
     contractRead.on("wins", (winner, event) => {
-      if (winner == "0x11ae45Ab10039D1EA50A54edd2638200fa3aFaEa") {
+      if (winner == J1) {
         toast.success(`Winner: J1`);
       } else {
         toast.success(`Winner: J2`);
       }
       setSeconds(300);
       SetTimer(false);
+      setJ1(null);
       event.removeListener();
     });
     contractRead.on("J2Move", (m, event) => {
@@ -93,7 +102,10 @@ function App() {
       setJ2Play(true);
       event.removeListener();
     });
-    setJ1(signer.address);
+    contractRead.on("Tie", (status) => {
+      toast.info("It is a TIE");
+      setSeconds(300);
+    });
     setJ2(address1);
     setPlayerTurn("J2");
     setShowModal(false);
@@ -116,31 +128,26 @@ function App() {
       contractABI,
       provider
     );
-    // const move = document.querySelector("#selection").value;
     const amount = document.querySelector("#amount2").value;
     const option = { value: ethers.parseEther(amount) };
-    // const { contract } = state;
     try {
       const tx = await contract.play(selectedValue, option);
       await tx.wait();
       setPlayerTurn("J1");
     } catch (error) {
-      toast.error(error);
-      console.log(error);
+      toast.error(error.reason);
     }
   };
 
-  const [selectedValue, setSelectedValue] = useState("");
+  const [selectedValue, setSelectedValue] = useState(1);
 
   const handleSelectionChange = (event) => {
     const value = event.target.value;
     setSelectedValue(value);
     console.log("Selected value:", value);
-    // You can perform further actions or logic with the selected value here
   };
 
   const solve = async () => {
-    // const { contractAddress } = state;
     const contractABI = abi.abi;
     let provider = new ethers.BrowserProvider(window.ethereum);
     let signer = await provider.getSigner();
@@ -163,7 +170,7 @@ function App() {
       const tx = await contract.solve(move, salt);
       await tx.wait();
     } catch (error) {
-      toast.error(error);
+      toast.error(error.reason);
     }
   };
 
@@ -200,14 +207,8 @@ function App() {
 
   const [showModal, setShowModal] = useState(false);
 
-  const openModal = async () => {
-    let provider = new ethers.BrowserProvider(window.ethereum);
-    let signer = await provider.getSigner();
-    if (signer.address == "0x11ae45Ab10039D1EA50A54edd2638200fa3aFaEa") {
-      setShowModal(true);
-    } else {
-      toast.error("Only J1 can create the game");
-    }
+  const openModal = () => {
+    setShowModal(true);
   };
 
   const closeModal = () => {
@@ -233,12 +234,85 @@ function App() {
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
+
+  const JoinGame = async () => {
+    if (contractAddress !== null) {
+      toast.error("You have already joined the Game");
+      return;
+    }
+    const add1 = document.querySelector("#addr").value;
+    const contractABI = abi.abi;
+    let provider = new ethers.BrowserProvider(window.ethereum);
+    let signer = await provider.getSigner();
+    console.log(signer);
+    let contract = new ethers.Contract(add1, contractABI, signer);
+
+    let contractRead = new ethers.Contract(add1, contractABI, provider);
+    const tx = await contractRead.getJ2();
+    // await tx.wait();
+    console.log(tx);
+    contractRead.on("wins", (winner, event) => {
+      if (winner == J1) {
+        toast.success(`Winner: J1`);
+      } else {
+        toast.success(`Winner: J2`);
+      }
+      setSeconds(300);
+      SetTimer(false);
+      setJ2(null);
+      setContractAddress(null);
+      event.removeListener();
+    });
+    contractRead.on("J2Move", (m, event) => {
+      if (m == 1) {
+        toast.success(`J2 has played Rock`);
+      } else if (m == 2) {
+        toast.success(`J2 has played Paper`);
+      } else if (m == 3) {
+        toast.success(`J2 has played Scissor`);
+      } else if (m == 4) {
+        toast.success(`J2 has played Lizard`);
+      } else {
+        toast.success(`J2 has played Spock`);
+      }
+      setSeconds(300);
+      setJ2Play(true);
+      event.removeListener();
+    });
+    contractRead.on("Tie", (status) => {
+      toast.info("It is a TIE");
+      setSeconds(300);
+    });
+
+    if (signer.address == tx) {
+      setContractAddress(add1);
+      SetTimer(true);
+      setJ2(signer.address);
+      toast.success("J2 has Joined the Game");
+    } else {
+      toast.error("You can't join the Game");
+    }
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard
+      .writeText(contractAddress) // Copies text to clipboard
+      .then(() => {
+        // Handle successful copy
+        toast.success("Text copied to clipboard:", contractAddress);
+        // You can also provide feedback to the user about successful copy
+      })
+      .catch((error) => {
+        // Handle errors, if any
+        console.error("Error copying text:", error);
+        // Provide feedback to the user about the error
+      });
+  };
   return (
     <div className="App">
       <nav className="navbar navbar-expand-lg sticky-top navbar-dark bg-dark">
         <div className="container">
           <a className="navbar-brand" href="/">
-            {/* <img src={logo} alt="Logo" className="logo-img" /> */}
             <h3 className="brand-name">ROCK/PAPER/SCISSOR</h3>
           </a>
           {connected ? (
@@ -251,6 +325,7 @@ function App() {
         </div>
       </nav>
       <div className="container">
+        {/* Countdown Timer */}
         <div className="card">
           <div className="card-body">
             <h5 className="card-title">Countdown Timer</h5>
@@ -265,77 +340,133 @@ function App() {
           </div>
         </div>
 
+        {/* Create Game button */}
         <div>
           <button
-            className="btn btn-primary mt-3 mb-3"
+            className="btn btn-dark mt-3 mb-3"
             style={{ marginLeft: "570px" }}
             onClick={openModal}
           >
             Create Game
           </button>
+          {contractAddress == null ? (
+            ""
+          ) : (
+            <div className="contract-address">
+              <h3>Contract Address: {contractAddress}</h3>
+              <button onClick={handleCopy} className="copy-button">
+                <FaCopy />
+              </button>
+            </div>
+          )}
+          <input
+            type="text"
+            placeholder="enter the address"
+            id="addr"
+            className="form-control"
+          />
+          <button
+            className="btn btn-dark mt-3 mb-3"
+            style={{ marginLeft: "580px" }}
+            onClick={JoinGame}
+          >
+            Join Game
+          </button>
 
           {showModal && (
-            <div
-              className="modal"
-              tabIndex="-1"
-              style={{
-                display: "block",
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-              }}
-            >
-              <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">Create the Game</h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      onClick={closeModal}
-                    ></button>
-                  </div>
-                  <div className="modal-body">
-                    {/* Your input fields for the modal */}
-                    <input
-                      type="text"
-                      className="form-control mb-3"
-                      placeholder="Enter the commitment"
-                      id="commitment"
-                    />
-                    <input
-                      type="text"
-                      className="form-control mb-3"
-                      placeholder="Enter the opponent address"
-                      id="Opaddress"
-                    />
-                    <input
-                      type="text"
-                      className="form-control mb-3"
-                      placeholder="Enter the amount to stake"
-                      id="amount"
-                    />
-                  </div>
-                  <div className="modal-footer">
-                    <button className="btn btn-primary" onClick={CreateGame}>
-                      Start Game
-                    </button>
-                    <button className="btn btn-secondary" onClick={closeModal}>
-                      Close
-                    </button>
+            <>
+              {/* Backdrop with blur effect */}
+              <div
+                className="modal-backdrop"
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  backdropFilter: "blur(5px)",
+                }}
+                onClick={closeModal}
+              ></div>
+
+              {/* Modal */}
+              <div
+                className="modal"
+                tabIndex="-1"
+                style={{
+                  display: "block",
+                  zIndex: 1050,
+                }}
+              >
+                <div className="modal-dialog modal-dialog-centered">
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h5 className="modal-title">Create the Game</h5>
+                      <button
+                        type="button"
+                        className="btn-close"
+                        onClick={closeModal}
+                      ></button>
+                    </div>
+                    <div className="modal-body">
+                      {/* Input fields for the modal */}
+                      <input
+                        type="text"
+                        className="form-control mb-3"
+                        placeholder="Enter the commitment"
+                        id="commitment"
+                      />
+                      <input
+                        type="text"
+                        className="form-control mb-3"
+                        placeholder="Enter the opponent address"
+                        id="Opaddress"
+                      />
+                      <input
+                        type="text"
+                        className="form-control mb-3"
+                        placeholder="Enter the amount to stake"
+                        id="amount"
+                      />
+                    </div>
+                    <div className="modal-footer">
+                      <button className="btn btn-primary" onClick={CreateGame}>
+                        Start Game
+                      </button>
+                      <button
+                        className="btn btn-secondary"
+                        onClick={closeModal}
+                      >
+                        Close
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </>
           )}
         </div>
-        <div className="card">
+
+        {/* J2 Move */}
+        <div
+          className="card mb-3"
+          style={{
+            border: `3px solid ${
+              seconds > 0 && playerTurn === "J2" ? "green" : "transparent"
+            }`,
+          }}
+        >
           <div className="card-body">
             <h5 className="card-title">J2 Move</h5>
             <div className="row mb-3">
+              {/* Select field, input, and button */}
               <div className="col">
                 <select
                   className="form-select"
                   onChange={handleSelectionChange}
                 >
+                  {/* Options */}
                   <option value="1">Rock</option>
                   <option value="2">Paper</option>
                   <option value="3">Scissors</option>
@@ -343,6 +474,7 @@ function App() {
                   <option value="5">Lizard</option>
                 </select>
               </div>
+              {/* Input field */}
               <div className="col">
                 <input
                   type="text"
@@ -351,8 +483,9 @@ function App() {
                   id="amount2"
                 />
               </div>
+              {/* Play button */}
               <div className="col">
-                <button className="btn btn-primary" onClick={Play}>
+                <button className="btn btn-dark" onClick={Play}>
                   Play
                 </button>
               </div>
@@ -360,10 +493,12 @@ function App() {
           </div>
         </div>
 
+        {/* J1 Move card */}
         <div className="card">
           <div className="card-body">
             <h5 className="card-title">J1 Move</h5>
             <div className="row mb-3">
+              {/* Input fields and Solve button */}
               <div className="col">
                 <input
                   type="text"
@@ -381,7 +516,7 @@ function App() {
                 />
               </div>
               <div className="col">
-                <button className="btn btn-primary" onClick={solve}>
+                <button className="btn btn-dark" onClick={solve}>
                   Solve
                 </button>
               </div>

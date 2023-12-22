@@ -39,3 +39,14 @@ button {
 button:hover {
   background-color: #0056b3;
 } */
+.contract-address {
+  display: inline-block;
+  position: relative;
+}
+
+.copy-button {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  margin-left: 5px; /* Adjust the margin as needed */
+}
