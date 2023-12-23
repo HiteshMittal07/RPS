@@ -15,6 +15,7 @@ contract RPS{
     event J2Move(Move m);
     event Tie(bool status);
     event Timeout(bool status,address caller);
+    event joined(bool status);
     constructor(bytes32 _c1Hash, address _j2)payable{
         stake = msg.value; // La mise correspond à la quantité d'ethers envoyés.
         j1=msg.sender;
@@ -60,7 +61,6 @@ contract RPS{
         }
         stake=0;
         c2=Move.Null;
-        selfdestruct(payable(j1));
     }
     
     function j1Timeout() public {
@@ -90,8 +90,16 @@ contract RPS{
             return (_c1>_c2);
     }
 
-    function getJ2()public view returns(address){
+    function getJ2()public returns(address){
+        require(msg.sender==j2,"You can't join the Game");
+        emit joined(true);
         return j2;
+    }
+    function getJ1()public view returns(address){
+        return j1;
+    }
+    function getTimer()public view returns(uint){
+        return block.timestamp-lastAction;
     }
     
 }

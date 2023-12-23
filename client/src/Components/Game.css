@@ -1,0 +1,16 @@
+.create-game-btn,
+.join-game-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.create-game-btn:hover,
+.join-game-btn:hover {
+  background-color: #2980b9;
+}

@@ -12,7 +12,7 @@ code {
     monospace;
 }
 .navbar-dark .navbar-brand .brand-name {
-  font-family: "Pacifico", cursive;
+  /* font-family: "Pacifico", cursive; */
   /* Apply the imported font */
   font-size: 1.5rem;
   /* Adjust font size */

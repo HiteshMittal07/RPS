@@ -50,3 +50,25 @@ button:hover {
   left: 100%;
   margin-left: 5px; /* Adjust the margin as needed */
 }
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+.App {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+body::-webkit-scrollbar {
+  display: none;
+}
+
+.container {
+  text-align: center;
+}
