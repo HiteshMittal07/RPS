@@ -18,17 +18,9 @@ export default function Solve() {
     }
     console.log(signer);
     let contract = new ethers.Contract(contractAddress, contractABI, signer);
-
-    let contractRead = new ethers.Contract(
-      contractAddress,
-      contractABI,
-      provider
-    );
-    // const { contract } = state;
-    const move = document.querySelector("#move").value;
     const salt = document.querySelector("#salt").value;
     try {
-      const tx = await contract.solve(move, salt);
+      const tx = await contract.solve(selectedValue, salt);
       await tx.wait();
     } catch (error) {
       toast.error(error.reason);
@@ -36,17 +28,21 @@ export default function Solve() {
   };
   const handleCopy = () => {
     navigator.clipboard
-      .writeText(contractAddress) // Copies text to clipboard
+      .writeText(contractAddress)
       .then(() => {
-        // Handle successful copy
         toast.success("Text copied to clipboard:", contractAddress);
-        // You can also provide feedback to the user about successful copy
       })
       .catch((error) => {
-        // Handle errors, if any
         console.error("Error copying text:", error);
-        // Provide feedback to the user about the error
       });
+  };
+
+  const [selectedValue, setSelectedValue] = useState(1);
+
+  const handleSelectionChange = (event) => {
+    const value = event.target.value;
+    setSelectedValue(value);
+    console.log("Selected value:", value);
   };
   return (
     <div className="card">
@@ -63,14 +59,14 @@ export default function Solve() {
       <div className="card-body">
         <h5 className="card-title">J1 Move</h5>
         <div className="row mb-3">
-          {/* Input fields and Solve button */}
           <div className="col">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Enter the move"
-              id="move"
-            />
+            <select className="form-select" onChange={handleSelectionChange}>
+              <option value="1">Rock</option>
+              <option value="2">Paper</option>
+              <option value="3">Scissors</option>
+              <option value="4">Spock</option>
+              <option value="5">Lizard</option>
+            </select>
           </div>
           <div className="col">
             <input

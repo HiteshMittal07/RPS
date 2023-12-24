@@ -58,13 +58,12 @@ button:hover {
   margin-top: 20px;
 }
 .App {
-  margin: 0;
-  height: 100vh;
-  display: flex;
+  margin-top: 200px;
   justify-content: center;
   align-items: center;
   flex-direction: column;
 }
+
 body::-webkit-scrollbar {
   display: none;
 }

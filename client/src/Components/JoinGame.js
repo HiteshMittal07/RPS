@@ -9,13 +9,14 @@ export default function JoinGame() {
   const {
     J1,
     setJ1,
-    setPlayerTurn,
     SetTimer,
     setContractAddress,
     setSeconds,
     setJ2Play,
     setJ2,
     contractAddress,
+    setPlayerTurn,
+    connected,
   } = useContext(CreateGameContext);
   const [showModal, setShowModal] = useState(false);
   const JoinGame = async () => {
@@ -27,43 +28,25 @@ export default function JoinGame() {
     const contractABI = abi.abi;
     let provider = new ethers.BrowserProvider(window.ethereum);
     let signer = await provider.getSigner();
-    console.log(signer);
-    let contract, contractRead;
-    let tx;
-    let tx1;
-    try {
-      contract = new ethers.Contract(add1, contractABI, signer);
+    let contractRead = new ethers.Contract(add1, contractABI, provider);
+    let tx = await contractRead.getJ2();
+    console.log(tx);
 
-      contractRead = new ethers.Contract(add1, contractABI, provider);
-      tx = await contractRead.getJ2();
-      await tx.wait();
-      console.log(tx);
-    } catch (error) {
-      toast.error("Game don't exist");
-      return;
-    }
     if (signer.address == tx) {
       setContractAddress(add1);
       setJ2(signer.address);
-      const tx = await contractRead.getTimer();
-      setSeconds(tx);
       SetTimer(true);
-      toast.success("J2 has Joined the Game");
+      toast.success("You has Joined the Game");
     } else {
       toast.error("You can't join the Game");
-      return;
     }
     try {
-      contract = new ethers.Contract(add1, contractABI, signer);
-
-      contractRead = new ethers.Contract(add1, contractABI, provider);
-      tx1 = await contractRead.getJ1();
-      // await tx.wait();
-      console.log(tx1);
+      const contractRead = new ethers.Contract(add1, contractABI, provider);
+      const tx1 = await contractRead.getJ1();
+      setJ1(tx1);
     } catch (error) {
       toast.error(error);
     }
-    setJ1(tx1);
     contractRead.on("wins", (winner, event) => {
       if (winner == J1) {
         toast.success(`Winner: J1`);
@@ -73,6 +56,7 @@ export default function JoinGame() {
       setSeconds(300);
       SetTimer(false);
       setJ2(null);
+      setJ1(null);
       setContractAddress(null);
       event.removeListener();
     });
@@ -92,14 +76,38 @@ export default function JoinGame() {
       setJ2Play(true);
       event.removeListener();
     });
+    contractRead.on("J1Move", (m, event) => {
+      if (m == 1) {
+        toast.success(`J1 has played Rock`);
+      } else if (m == 2) {
+        toast.success(`J1 has played Paper`);
+      } else if (m == 3) {
+        toast.success(`J1 has played Scissor`);
+      } else if (m == 4) {
+        toast.success(`J1 has played Lizard`);
+      } else {
+        toast.success(`J2 has played Spock`);
+      }
+      event.removeListener();
+    });
     contractRead.on("Tie", (status, event) => {
       toast.info("It is a TIE");
       setSeconds(300);
+      SetTimer(false);
+      setJ1(null);
+      setJ2(null);
+      setContractAddress(null);
       event.removeListener();
     });
+    setPlayerTurn("J2");
+    setShowModal(false);
   };
 
   const openModal = () => {
+    if (!connected) {
+      toast.error("First connect the wallet");
+      return;
+    }
     setShowModal(true);
   };
 
@@ -139,7 +147,7 @@ export default function JoinGame() {
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content">
                 <div className="modal-header">
-                  <h5 className="modal-title">Create the Game</h5>
+                  <h5 className="modal-title">Join the Game</h5>
                   <button
                     type="button"
                     className="btn-close"

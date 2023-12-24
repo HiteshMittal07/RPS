@@ -19,7 +19,7 @@ function App() {
   const [J1, setJ1] = useState(null);
   const [J2, setJ2] = useState(null);
   const [seconds, setSeconds] = useState(300);
-
+  const [J1Move, setJ1Move] = useState(null);
   return (
     <RPSContext.Provider
       value={{
@@ -44,6 +44,9 @@ function App() {
           setJ2Play,
           setJ2,
           contractAddress,
+          J1Move,
+          setJ1Move,
+          connected,
         }}
       >
         <div className="App">

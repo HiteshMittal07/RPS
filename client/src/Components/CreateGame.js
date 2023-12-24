@@ -15,7 +15,7 @@ export default function CreateGame() {
     setSeconds,
     setJ2Play,
     setJ2,
-    contractAddress,
+    connected,
   } = useContext(CreateGameContext);
   const [showModal, setShowModal] = useState(false);
   const CreateGame = async () => {
@@ -23,6 +23,7 @@ export default function CreateGame() {
       toast.error("You are already in game");
       return;
     }
+
     const commit = document.querySelector("#commitment").value;
     const address1 = document.querySelector("#Opaddress").value;
     const amount = document.querySelector("#amount").value;
@@ -50,19 +51,14 @@ export default function CreateGame() {
       toast.error(error.reason);
     }
     SetTimer(true);
-    toast.success("J1 Has Played his Move");
+    toast.success("Game is Created!! Waiting for J2");
     setContractAddress(contractInstance.target);
-    let contract = new ethers.Contract(
-      contractInstance.target,
-      contractABI,
-      signer
-    );
+    setJ1(signer.address);
     let contractRead = new ethers.Contract(
       contractInstance.target,
       contractABI,
       provider
     );
-    setJ1(signer.address);
     contractRead.on("wins", (winner, event) => {
       if (winner == J1) {
         toast.success(`Winner: J1`);
@@ -72,6 +68,8 @@ export default function CreateGame() {
       setSeconds(300);
       SetTimer(false);
       setJ1(null);
+      setJ2(null);
+      setContractAddress(null);
       event.removeListener();
     });
     contractRead.on("J2Move", (m, event) => {
@@ -90,21 +88,41 @@ export default function CreateGame() {
       setJ2Play(true);
       event.removeListener();
     });
-    contractRead.on("Tie", (status) => {
+    contractRead.on("J1Move", (m, event) => {
+      if (m == 1) {
+        toast.success(`J1 has played Rock`);
+      } else if (m == 2) {
+        toast.success(`J1 has played Paper`);
+      } else if (m == 3) {
+        toast.success(`J1 has played Scissor`);
+      } else if (m == 4) {
+        toast.success(`J1 has played Lizard`);
+      } else {
+        toast.success(`J1 has played Spock`);
+      }
+      event.removeListener();
+    });
+    contractRead.on("Tie", (status, event) => {
       toast.info("It is a TIE");
       setSeconds(300);
+      setJ1(null);
+      setJ2(null);
+      SetTimer(false);
+      event.removeListener();
     });
-    contractRead.on("joined", (status, event) => {
-      toast.success("J2 has Joined the Game");
-    });
+    // contractRead.on("joined", (status, event) => {
+    //   toast.success("J2 has Joined the Game");
+    // });
     setJ2(address1);
     setPlayerTurn("J2");
     setShowModal(false);
-    const tx = await contractRead.getTimer();
-    console.log(tx);
   };
 
   const openModal = () => {
+    if (!connected) {
+      toast.error("First connect the wallet");
+      return;
+    }
     setShowModal(true);
   };
 

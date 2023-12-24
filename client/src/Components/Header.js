@@ -2,6 +2,8 @@ import React, { useContext, useState } from "react";
 import { RPSContext } from "../RPSContext";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export default function Header() {
   const { account, setAccount, connected, setConnected } =
     useContext(RPSContext);
@@ -15,7 +17,7 @@ export default function Header() {
       setAccount(accounts);
       setConnected(true);
     } catch (error) {
-      alert.error(error);
+      toast.error(error);
     }
   };
   return (

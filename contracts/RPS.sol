@@ -13,6 +13,7 @@ contract RPS{
     event Game(bool status);
     event wins(address winner);
     event J2Move(Move m);
+    event J1Move(Move m);
     event Tie(bool status);
     event Timeout(bool status,address caller);
     event joined(bool status);
@@ -40,8 +41,8 @@ contract RPS{
         require(c2!=Move.Null,"J2 should play his move"); // J2 must have played.
         
         require(msg.sender==j1,"only J1 can call this"); // J1 can call this.
-        require(keccak256(abi.encodePacked(_c1,_salt))==c1Hash,"hash doesn't match"); // Verify the value is the commited one.
-        
+        require(keccak256(abi.encodePacked(_c1,_salt))==c1Hash,"Hash doesn't match"); // Verify the value is the commited one.
+        emit J1Move(_c1);
         if (win(_c1,c2)){
             (bool success,)=payable(j1).call{value: 2*stake}("");
             require(success,"transaction failed");
@@ -90,16 +91,10 @@ contract RPS{
             return (_c1>_c2);
     }
 
-    function getJ2()public returns(address){
-        require(msg.sender==j2,"You can't join the Game");
-        emit joined(true);
+    function getJ2()public view returns(address){
         return j2;
     }
     function getJ1()public view returns(address){
         return j1;
     }
-    function getTimer()public view returns(uint){
-        return block.timestamp-lastAction;
-    }
-    
 }
