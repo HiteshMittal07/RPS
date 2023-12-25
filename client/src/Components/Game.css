@@ -1,11 +1,18 @@
-.create-game-btn,
+.create-game-btn {
+  padding: 10px 25px;
+  font-size: 22px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
 .join-game-btn {
-  padding: 10px 20px;
   font-size: 16px;
-  background-color: #3498db;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
+  padding: 10px 25px;
+  border: 1px solid #fff;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
   cursor: pointer;
   transition: background-color 0.3s;
 }

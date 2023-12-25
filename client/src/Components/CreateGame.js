@@ -86,6 +86,7 @@ export default function CreateGame() {
       }
       setSeconds(300);
       setJ2Play(true);
+      setPlayerTurn("J1");
       event.removeListener();
     });
     contractRead.on("J1Move", (m, event) => {
@@ -132,7 +133,7 @@ export default function CreateGame() {
 
   return (
     <div>
-      <button className="create-game-btn" onClick={openModal}>
+      <button className="create-game-btn text-light" onClick={openModal}>
         Create Game
       </button>
       {showModal && (

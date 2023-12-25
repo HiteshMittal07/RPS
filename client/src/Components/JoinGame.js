@@ -40,13 +40,13 @@ export default function JoinGame() {
     } else {
       toast.error("You can't join the Game");
     }
-    try {
-      const contractRead = new ethers.Contract(add1, contractABI, provider);
-      const tx1 = await contractRead.getJ1();
-      setJ1(tx1);
-    } catch (error) {
-      toast.error(error);
-    }
+    // try {
+    //   const contractRead = new ethers.Contract(add1, contractABI, provider);
+    //   const tx1 = await contractRead.getJ1();
+    //   setJ1(tx1);
+    // } catch (error) {
+    //   toast.error(error);
+    // }
     contractRead.on("wins", (winner, event) => {
       if (winner == J1) {
         toast.success(`Winner: J1`);
@@ -74,6 +74,7 @@ export default function JoinGame() {
       }
       setSeconds(300);
       setJ2Play(true);
+      setPlayerTurn("J1");
       event.removeListener();
     });
     contractRead.on("J1Move", (m, event) => {
@@ -116,7 +117,7 @@ export default function JoinGame() {
   };
   return (
     <div>
-      <button className="join-game-btn" onClick={openModal}>
+      <button className="join-game-btn text-light" onClick={openModal}>
         Join Game
       </button>
       {showModal && (

@@ -6,7 +6,8 @@ import abi from "../ABI/RPS.json";
 import { CreateGameContext } from "../RPSContext";
 import { FaCopy } from "react-icons/fa";
 export default function Solve() {
-  const { contractAddress, J1 } = useContext(CreateGameContext);
+  const { contractAddress, J1, playerTurn, seconds } =
+    useContext(CreateGameContext);
 
   const solve = async () => {
     const contractABI = abi.abi;
@@ -45,13 +46,26 @@ export default function Solve() {
     console.log("Selected value:", value);
   };
   return (
-    <div className="card">
+    <div
+      className="card bg-transparent border-3 border-light text-light"
+      style={{
+        border: `3px solid ${
+          seconds > 0 && playerTurn === "J2" ? "green" : "transparent"
+        }`,
+      }}
+    >
       {contractAddress == null ? (
         ""
       ) : (
-        <div className="contract-address">
-          <h3>Contract Address: {contractAddress}</h3>
-          <button onClick={handleCopy} className="copy-button">
+        <div>
+          <h5 className="contract-address">
+            Contract Address: {contractAddress}
+          </h5>
+          <button
+            onClick={handleCopy}
+            className="btn btn-light ms-2"
+            style={{ fontSize: "10px" }}
+          >
             <FaCopy />
           </button>
         </div>
@@ -77,7 +91,7 @@ export default function Solve() {
             />
           </div>
           <div className="col">
-            <button className="btn btn-dark" onClick={solve}>
+            <button className="btn btn-success" onClick={solve}>
               Solve
             </button>
           </div>

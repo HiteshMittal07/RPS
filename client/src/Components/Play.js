@@ -13,10 +13,6 @@ export default function Play() {
     let provider = new ethers.BrowserProvider(window.ethereum);
     let signer = await provider.getSigner();
     console.log(signer);
-    if (signer.address == J1) {
-      toast.error("Only J2 can call this");
-      return;
-    }
     // console.log(contractAddress);
     let contract = new ethers.Contract(contractAddress, contractABI, signer);
     let contractRead = new ethers.Contract(
@@ -44,7 +40,7 @@ export default function Play() {
   };
   return (
     <div
-      className="card mb-3"
+      className="card mb-3 bg-transparent border-3 border-light text-light"
       style={{
         border: `3px solid ${
           seconds > 0 && playerTurn === "J2" ? "green" : "transparent"

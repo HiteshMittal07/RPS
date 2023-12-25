@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 import abi from "../ABI/RPS.json";
 import { CreateGameContext } from "../RPSContext";
 export default function Timer() {
-  const { contractAddress, j2Play, timer, seconds, setSeconds } =
+  const { contractAddress, j2Play, timer, seconds, setSeconds, setJ1, setJ2 } =
     useContext(CreateGameContext);
   const Timeout = async () => {
     const contractABI = abi.abi;
@@ -23,6 +23,8 @@ export default function Timer() {
       try {
         const tx = await contract.j2Timeout();
         await tx.wait();
+        setJ1(null);
+        setJ2(null);
         toast.error("Timeout called by J1");
       } catch (error) {
         toast.error(error);
@@ -31,6 +33,8 @@ export default function Timer() {
       try {
         const tx = await contract.j1Timeout();
         await tx.wait();
+        setJ1(null);
+        setJ2(null);
         toast.error("Timeout called by J2");
       } catch (error) {
         toast.error(error);
@@ -56,10 +60,10 @@ export default function Timer() {
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
   return (
-    <div className="card">
+    <div className="card bg-transparent text-light border-2 mb-4 border-light">
       <div className="card-body">
         <h5 className="card-title">Countdown Timer</h5>
-        <div className="display-4 text-center mb-4">
+        <div className="display-5 text-center mb-4">
           Time Remaining: {displayTime()}
         </div>
         {seconds <= 0 && (
