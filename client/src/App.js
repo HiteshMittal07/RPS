@@ -8,7 +8,6 @@ import Header from "./Components/Header";
 import Solve from "./Components/Solve";
 import Play from "./Components/Play";
 import Timer from "./Components/Timer";
-// const RPSContext = createContext();
 function App() {
   const [contractAddress, setContractAddress] = useState(null);
   const [account, setAccount] = useState("not connected");
@@ -20,6 +19,7 @@ function App() {
   const [J2, setJ2] = useState(null);
   const [seconds, setSeconds] = useState(300);
   const [J1Move, setJ1Move] = useState(null);
+
   return (
     <RPSContext.Provider
       value={{

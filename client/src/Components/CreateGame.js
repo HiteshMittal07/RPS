@@ -23,8 +23,12 @@ export default function CreateGame() {
       toast.error("You are already in game");
       return;
     }
-
-    const commit = document.querySelector("#commitment").value;
+    const salt = document.querySelector("#salt").value;
+    const commitment = ethers.solidityPackedKeccak256(
+      ["uint8", "uint256"],
+      [selectedValue, salt]
+    );
+    // const commit = document.querySelector("#commitment").value;
     const address1 = document.querySelector("#Opaddress").value;
     const amount = document.querySelector("#amount").value;
     const contractABI = abi.abi;
@@ -41,7 +45,7 @@ export default function CreateGame() {
     let contractInstance;
     try {
       contractInstance = await ContractInstance.deploy(
-        commit,
+        commitment,
         address1,
         option
       );
@@ -112,10 +116,10 @@ export default function CreateGame() {
       SetTimer(false);
       event.removeListener();
     });
-    contractRead.on("join",(status,event)=>{
+    contractRead.on("join", (status, event) => {
       toast.success("J2 has joined the game");
       event.removeListener();
-    })
+    });
     // contractRead.on("joined", (status, event) => {
     //   toast.success("J2 has Joined the Game");
     // });
@@ -134,6 +138,14 @@ export default function CreateGame() {
 
   const closeModal = () => {
     setShowModal(false);
+  };
+
+  const [selectedValue, setSelectedValue] = useState(1);
+
+  const handleSelectionChange = (event) => {
+    const value = event.target.value;
+    setSelectedValue(value);
+    console.log("Selected value:", value);
   };
 
   return (
@@ -178,11 +190,22 @@ export default function CreateGame() {
                 </div>
                 <div className="modal-body">
                   {/* Input fields for the modal */}
+                  <select
+                    className="form-select mb-3"
+                    onChange={handleSelectionChange}
+                  >
+                    {/* Options */}
+                    <option value="1">Rock</option>
+                    <option value="2">Paper</option>
+                    <option value="3">Scissors</option>
+                    <option value="4">Spock</option>
+                    <option value="5">Lizard</option>
+                  </select>
                   <input
                     type="text"
                     className="form-control mb-3"
-                    placeholder="Enter the commitment"
-                    id="commitment"
+                    placeholder="Enter the salt"
+                    id="salt"
                   />
                   <input
                     type="text"
