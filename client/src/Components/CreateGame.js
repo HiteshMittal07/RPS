@@ -62,6 +62,7 @@ export default function CreateGame() {
     contractRead.on("wins", (winner, event) => {
       if (winner == J1) {
         toast.success(`Winner: J1`);
+        toast.info("Game Finshed");
       } else {
         toast.success(`Winner: J2`);
       }
@@ -111,6 +112,10 @@ export default function CreateGame() {
       SetTimer(false);
       event.removeListener();
     });
+    contractRead.on("join",(status,event)=>{
+      toast.success("J2 has joined the game");
+      event.removeListener();
+    })
     // contractRead.on("joined", (status, event) => {
     //   toast.success("J2 has Joined the Game");
     // });

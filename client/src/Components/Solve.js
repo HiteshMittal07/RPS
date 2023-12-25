@@ -50,7 +50,7 @@ export default function Solve() {
       className="card bg-transparent border-3 border-light text-light"
       style={{
         border: `3px solid ${
-          seconds > 0 && playerTurn === "J2" ? "green" : "transparent"
+          seconds > 0 && playerTurn === "J1" ? "green" : "transparent"
         }`,
       }}
     >

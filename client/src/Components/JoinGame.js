@@ -29,17 +29,18 @@ export default function JoinGame() {
     let provider = new ethers.BrowserProvider(window.ethereum);
     let signer = await provider.getSigner();
     let contractRead = new ethers.Contract(add1, contractABI, provider);
-    let tx = await contractRead.getJ2();
-    console.log(tx);
-
-    if (signer.address == tx) {
-      setContractAddress(add1);
-      setJ2(signer.address);
-      SetTimer(true);
-      toast.success("You has Joined the Game");
-    } else {
-      toast.error("You can't join the Game");
+    let contract = new ethers.Contract(add1, contractABI, signer);
+    try {
+      let tx = await contract.Join();
+      await tx.wait();
+    } catch (error) {
+      toast.error(error.reason);
+      return;
     }
+    setContractAddress(add1);
+    setJ2(signer.address);
+    SetTimer(true);
+    toast.success("You has Joined the Game");
     // try {
     //   const contractRead = new ethers.Contract(add1, contractABI, provider);
     //   const tx1 = await contractRead.getJ1();

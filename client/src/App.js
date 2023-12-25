@@ -15,7 +15,7 @@ function App() {
   const [timer, SetTimer] = useState(false);
   const [j2Play, setJ2Play] = useState(false);
   const [connected, setConnected] = useState(false);
-  const [playerTurn, setPlayerTurn] = useState("");
+  const [playerTurn, setPlayerTurn] = useState("J2");
   const [J1, setJ1] = useState(null);
   const [J2, setJ2] = useState(null);
   const [seconds, setSeconds] = useState(300);
