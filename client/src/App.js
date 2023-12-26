@@ -73,6 +73,12 @@ function App() {
                     </h2>
                     <p>Send him a address to join the game</p>
                   </div>
+                  <div className="col-4 text-light mt-1">
+                    <h3>
+                      Disclaimer: Remember the salt(random number) you give in
+                      creation of game.
+                    </h3>
+                  </div>
                 </div>
                 <h2 className="text-bold text-light">Let's Begin</h2>
                 <div className="button-container">

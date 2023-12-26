@@ -47,10 +47,10 @@ export default function Solve() {
   };
   return (
     <div
-      className="card bg-transparent border-3 border-light text-light"
+      className="card bg-transparent text-light"
       style={{
         border: `3px solid ${
-          seconds > 0 && playerTurn === "J1" ? "green" : "transparent"
+          seconds > 0 && playerTurn === "J1" ? "green" : "white"
         }`,
       }}
     >

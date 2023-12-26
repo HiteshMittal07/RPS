@@ -28,7 +28,6 @@ export default function CreateGame() {
       ["uint8", "uint256"],
       [selectedValue, salt]
     );
-    // const commit = document.querySelector("#commitment").value;
     const address1 = document.querySelector("#Opaddress").value;
     const amount = document.querySelector("#amount").value;
     const contractABI = abi.abi;

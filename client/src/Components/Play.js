@@ -40,10 +40,10 @@ export default function Play() {
   };
   return (
     <div
-      className="card mb-3 bg-transparent border-3 border-light text-light"
+      className="card mb-3 bg-transparent text-light"
       style={{
         border: `3px solid ${
-          seconds > 0 && playerTurn === "J2" ? "green" : "transparent"
+          seconds > 0 && playerTurn === "J2" ? "green" : "white"
         }`,
       }}
     >
