@@ -69,9 +69,9 @@ export default function JoinGame() {
       } else if (m == 3) {
         toast.success(`J2 has played Scissor`);
       } else if (m == 4) {
-        toast.success(`J2 has played Lizard`);
-      } else {
         toast.success(`J2 has played Spock`);
+      } else {
+        toast.success(`J2 has played Lizard`);
       }
       setSeconds(300);
       setJ2Play(true);
@@ -86,9 +86,9 @@ export default function JoinGame() {
       } else if (m == 3) {
         toast.success(`J1 has played Scissor`);
       } else if (m == 4) {
-        toast.success(`J1 has played Lizard`);
+        toast.success(`J1 has played Spock`);
       } else {
-        toast.success(`J2 has played Spock`);
+        toast.success(`J1 has played Lizard`);
       }
       event.removeListener();
     });
